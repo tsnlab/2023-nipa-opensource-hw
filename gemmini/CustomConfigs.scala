@@ -5,7 +5,7 @@ import chisel3._
 import freechips.rocketchip.diplomacy.LazyModule
 import freechips.rocketchip.subsystem.SystemBusKey
 import freechips.rocketchip.tile.BuildRoCC
-
+import hardfloat._
 object GemminiCustomConfigs {
   // Default configurations
   val defaultConfig = GemminiConfigs.defaultConfig
@@ -15,6 +15,35 @@ object GemminiCustomConfigs {
       (t: SInt, f: Float) => t,
       1, Float(8, 24), -1, identity = "1.0",
       c_str = "(x)"
+  ))
+
+  val scalefp = Some(ScaleArguments[Float, Float](
+      (t: Float, f: Float) => {
+        val t_rec = recFNFromFN(t.expWidth, t.sigWidth, t.bits)
+        val f_rec = recFNFromFN(f.expWidth, f.sigWidth, f.bits)
+
+        val t_resizer =  Module(new RecFNToRecFN(t.expWidth, t.sigWidth, f.expWidth, f.sigWidth))
+        t_resizer.io.in := t_rec
+        t_resizer.io.roundingMode := consts.round_near_even // consts.round_near_maxMag
+        t_resizer.io.detectTininess := consts.tininess_afterRounding
+        val t_rec_resized = t_resizer.io.out
+
+        val muladder = Module(new MulAddRecFN(f.expWidth, f.sigWidth))
+
+        muladder.io.op := 0.U
+        muladder.io.roundingMode := consts.round_near_even // consts.round_near_maxMag
+        muladder.io.detectTininess := consts.tininess_afterRounding
+
+        muladder.io.a := f_rec
+        muladder.io.b := t_rec_resized
+        muladder.io.c := 0.U
+
+        val out = Wire(Float(f.expWidth, f.sigWidth))
+        out.bits := fNFromRecFN(f.expWidth, f.sigWidth, muladder.io.out)
+        out
+      },
+      4, Float(8, 8), -1, identity = "0x3F80",
+      c_str = "((x) * (scale))"
   ))
 
   val noscalefp = Some(ScaleArguments(
@@ -48,7 +77,8 @@ object GemminiCustomConfigs {
     ex_read_from_acc = false,
     ex_write_to_spad = false,
     hardcode_d_to_garbage_addr = true,
-    mvin_scale_args = noscalefp,
+    mvin_scale_args = scalefp,
+    mvin_scale_acc_args = None,
     acc_scale_args = noscalefp,
     dma_buswidth = 64
   )

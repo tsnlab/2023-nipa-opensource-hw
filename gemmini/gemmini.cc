@@ -1817,7 +1817,7 @@ enum gemmini_state_t::NormCmd gemmini_t::non_terminating_norm_cmd(enum gemmini_s
 #ifdef HAS_MVIN_SCALE
 elem_t gemmini_t::mvin_scale(elem_t value, scale_t scale) {
 #ifdef ELEM_T_IS_LOWPREC_FLOAT
-  acc_t scaled = MVIN_SCALE(bf16_to_f32(value), scale);
+  acc_t scaled = MVIN_SCALE(bf16_to_f32(value), bf16_to_f32(scale));
 #else
   acc_t scaled = MVIN_SCALE(value, scale);
 #endif

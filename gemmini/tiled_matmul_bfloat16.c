@@ -5,7 +5,7 @@
 #include "include/gemmini_testutils.h"
 #include "include/bfloat16.h"
 
-#define MAT_DIM 4
+#define MAT_DIM 64
 
 bfloat16 setf_zero() {
     return 0;
@@ -36,14 +36,14 @@ int main()
 
     static float buffer[MAT_DIM * MAT_DIM * 2];
 
-    bf16_matset(A, setf_0or1, MAT_DIM);
-    bf16_matset(B, setf_0or1, MAT_DIM);
-    bf16_matset(D, setf_zero, MAT_DIM);
+    bf16_matset(A, setf_0or1, MAT_DIM, MAT_DIM);
+    bf16_matset(B, setf_0or1, MAT_DIM, MAT_DIM);
+    bf16_matset(D, setf_zero, MAT_DIM, MAT_DIM);
 
     printf("Starting slow CPU matmul\n");
     unsigned long cpu_start = read_cycles();
 
-    bf16_matmul(A, B, D, gold, MAT_DIM, buffer);
+    bf16_matmul_buffered(A, B, D, gold, MAT_DIM, MAT_DIM, MAT_DIM, buffer);
 
     unsigned long cpu_end = read_cycles();
     printf("Cycles taken: %u\n", cpu_end - cpu_start);
@@ -58,20 +58,22 @@ int main()
                       NO_ACTIVATION, ACC_SCALE_IDENTITY, 0, false,
                       false, false, false, true, 0, WS);
 
+    gemmini_fence();
+
     unsigned long end = read_cycles();
     printf("Cycles taken: %u\n", end - start);
-
+/*
     printf("A:\n");
-    bf16_printMatrix(A, MAT_DIM);
+    bf16_printMatrix(A, MAT_DIM, MAT_DIM);
     printf("B:\n");
-    bf16_printMatrix(B, MAT_DIM);
+    bf16_printMatrix(B, MAT_DIM, MAT_DIM);
     printf("C:\n");
-    bf16_printMatrix(C, MAT_DIM);
+    bf16_printMatrix(C, MAT_DIM, MAT_DIM);
     printf("D:\n");
-    bf16_printMatrix(D, MAT_DIM);
+    bf16_printMatrix(D, MAT_DIM, MAT_DIM);
     printf("Gold:\n");
-    bf16_printMatrix(gold, MAT_DIM);
+    bf16_printMatrix(gold, MAT_DIM, MAT_DIM);
     printf("\n");
-
-    exit(!bf16_matequal(C, gold, MAT_DIM));
+*/
+    exit(!bf16_matequal(C, gold, MAT_DIM, MAT_DIM));
 }
