@@ -1,19 +1,5 @@
 # Instructions
 
-Copy this directory under `chipyard/generators`.
-To add dependency, modify `chipyard/build.sbt` as below:
+To build bitstream, run `make SUB_PROJECT=arty100t bitstream` at `chipyard/fpga` directory.
 
-```
-lazy val chipyard = (project in file("generators/chipyard"))
-.dependsOn(
-...
-npu,
-...
-)
-...
-...
-lazy val npu = (project in file("generators/npu"))
-  .dependsOn(rocketchip)
-  .settings(libraryDependencies ++= rocketLibDeps.value)
-  .settings(commonSettings)
-```
+To build software, run `make compile` at `chipyard/gemmini/npu/software` directory.
