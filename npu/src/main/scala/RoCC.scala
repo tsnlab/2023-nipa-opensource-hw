@@ -47,7 +47,7 @@ class NPUModule(outer: NPU) extends LazyRoCCModuleImp(outer) with HasCoreParamet
   val muladd_result = fNFromRecFN(8, 8, muladd_rec.io.out)
   val div_result = fNFromRecFN(8, 8, div_rec.io.out)
 
-  cmd.ready := io.resp.ready
+  cmd.ready := Mux(doDiv, true.B, io.resp.ready)
   io.resp.valid := (cmd.valid && !doDiv) || div_rec.io.outValid_div
   io.resp.bits.rd := cmd.bits.inst.rd
   io.resp.bits.data := Mux(div_rec.io.outValid_div, div_result, muladd_result)
