@@ -1,14 +1,13 @@
-# Template repository for Github CI
+# NPU Project
 
-## Usage
+## Prerequisite
 
-Check [.github/workflows/](.github/workflows/)
-It is for basic python+Rust project. Modify by yourself as needed.
+Our NPU Project uses [gemmini](https://github.com/ucb-bar/gemmini) in [chipyard](https://github.com/ucb-bar/chipyard), so you have to set up chipyard environment before test our project.
 
-Remove some lint-*.yml if you not need on your project
+`make chipyard` command sets up chipyard environment easily.
 
-Check [.gitignore](.gitignore) file.
-It is also basic gitignore file for C + Python project.
-Check [This repo][gitignore] to find gitignore for another type
+if the environment ready, set `CHIPYARD` environment variable to point the chipyard directory.
 
-[gitignore]: https://github.com/github/gitignore
+## run test operation file
+
+Execute `make` to fetch gemmini, alter files, build and run.
