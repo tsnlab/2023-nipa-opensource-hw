@@ -3,19 +3,17 @@ ARTYCONFIG=$(CHIPYARD)/fpga/src/main/scala/arty100t/Configs.scala
 
 chipyard:
 	git clone https://github.com/ucb-bar/chipyard.git
-	pushd chipyard
+	cd chipyard
 	git checkout 1.9.1
 	./build-setup.sh riscv-tools
-	popd
 
 fetch-gemmini:
-	pushd $(CHIPYARD)
+	cd $(CHIPYARD)
 	source env.sh
 	cd generators/gemmini
 	git config remote.origin.fetch "+refs/heads/*:refs/remotes/origin/*"
 	git fetch && git checkout v0.7.1
 	git submodule update --init --recursive
-	popd
 
 alter-files:
 	@GEMDIR=$(CHIPYARD)/generators/gemmini
@@ -35,16 +33,15 @@ alter-files:
 	sed -i '56 op_bfloat16 \\' $(ROCCDIR)/bareMetalC/Makefile
 	
 build-gemmini:
-	pushd $(CHIPYARD)/generators/gemmini
+	cd $(CHIPYARD)/generators/gemmini
 	make -C software/libgemmini install
 	./scripts/build-spike.sh
 	./scripts/setup-paths.sh
 	cd software/gemmini-rocc-tests
 	./build.sh
-	popd
 
 run-waveform:
-	pushd $(CHIPYARD)/generators/gemmini
+	cd $(CHIPYARD)/generators/gemmini
 	./scripts/build-verilator.sh --debug
 	./scripts/run-verilator.sh $(CHIPYARD)/generators/gemmini/software/gemmini/rocc-tests/build/bareMetalC/op_bfloat16-baremetal
 
