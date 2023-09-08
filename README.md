@@ -4,7 +4,7 @@
 
 Our NPU Project uses [gemmini](https://github.com/ucb-bar/gemmini) in [chipyard](https://github.com/ucb-bar/chipyard), so you have to set up chipyard environment before test our project.
 
-`make chipyard` command sets up chipyard environment easily.
+Follow the instructions [here](https://chipyard.readthedocs.io/en/stable/Chipyard-Basics/Initial-Repo-Setup.html).
 
 if the environment ready, set `CHIPYARD` environment variable to point the chipyard directory.
 
